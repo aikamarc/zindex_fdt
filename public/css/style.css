@@ -1,0 +1,257 @@
+body
+{
+    font-family: Arial, sans-serif;
+    background-color: #191f2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 2vw;
+}
+
+.container
+{
+    width: 60vw;
+    height: 80vh;
+    background-color: #2b3647;
+    border-bottom: 3px solid #6f82a398;
+    border-radius: 10px;
+    overflow-y: scroll;
+}
+
+.container::-webkit-scrollbar {
+    width: 5px;               /* width of the entire scrollbar */
+}
+
+.container::-webkit-scrollbar-track {
+    background: transparent;        /* color of the tracking area */
+}
+
+.container::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.377);    /* color of the scroll thumb */
+    border-radius: 20px;       /* roundness of the scroll thumb */
+    border: 1px solid transparent;  /* creates padding around scroll thumb */
+}
+
+.pdf-container
+{
+    width: 30vw;
+    height: 80vh;
+    background-color: #2b3647;
+    border-bottom: 3px solid #6f82a398;
+    border-radius: 10px;
+}
+
+.group
+{
+    display: flex;
+    padding: 2%;
+    flex-direction: column;
+    gap: 10px;
+    color: white;
+}
+
+.align
+{
+    display: flex;
+    gap: 5%;
+}
+
+.w100 { width: 100%; }
+.w50  { width: 50%; }
+
+.group-align
+{
+    display: flex;
+}
+
+.groupLabel
+{
+    padding-bottom: 5px;
+    border-bottom: 1px solid #6f82a398;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inputForm
+{
+    border-radius: 3px;
+    border: 1px solid #aaa;
+    height: 28px;
+    text-indent: 5px;
+    width: 100%;
+}
+
+.pastille
+{
+    width: 20px;
+    height: 20px;
+    border-radius: 50px;
+}
+
+.pastille-conge   { background-color: #ffff00; }
+.pastille-ferie   { background-color: #ffb7f2; }
+.pastille-maladie { background-color: #00b050; }
+.pastille-cours   { background-color: #86b9ff; }
+
+.fakeHr
+{
+    width: 80%;
+    height: 1px;
+    border-bottom: 1px solid #191f2a;
+    margin-left: 10%;
+    margin: 20px 0px 20px 10%;
+}
+
+.horaire-flex
+{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.horaire-separator
+{
+    height: 100%;
+    width: 1px;
+    background: #191f2a;
+}
+
+#select_horaire_modif_container
+{
+    width: 50%;
+}
+
+.no-padding
+{
+    padding-bottom: 0;
+    margin-bottom: -10px;
+}
+
+.cadre-horaire
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.cadre-horaire div
+{
+    z-index: 9999;
+}
+
+.cadre-horaire div:hover
+{
+    opacity: 80%;
+    cursor: pointer;
+    color: red;
+}
+
+.disNone
+{
+    display: none !important;
+}
+
+.cadre-horaire-modif
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 2%;
+    color: white;
+}
+
+.cadre-horaire-modif div
+{
+    display: flex;
+    flex-direction: row;
+    width: 60%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cadre-horaire-modif div:hover
+{
+    opacity: 80%;
+    cursor: pointer;
+    color: red;
+}
+
+.signatureContainer
+{
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+    gap: 10px;
+}
+
+#signature-pad
+{
+    border-radius: 5px;
+    border: 1px solid white;
+}
+
+.pdf-container
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#pdf-container
+{
+    height: 820px;
+    aspect-ratio: 210 / 297;
+    background: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    border: 1px solid #ddd;
+    position: relative;
+}
+
+button
+{
+    background: transparent;
+    border: 1px solid white;
+    padding: 5px;
+    border-radius: 50px;
+    color: white;
+    transition: 0.2s;
+}
+
+button:hover
+{
+    cursor: pointer;
+    background-color: #6f82a398;
+    transition: 0.2s;
+}
+
+.signatureElementAction
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.signatureElementAction button
+{
+    aspect-ratio: 1;
+    width: 30px;
+}
