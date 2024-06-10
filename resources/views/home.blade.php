@@ -45,13 +45,13 @@
             <div class="groupLabel">Horaires prévus pour chaque jour ( Matin / Après midi )</div>
             <div class="horaire-flex">
                 De
-                <select class="select2" id="horaire_matin_debut">
+                <select class="select2" onchange="generatePdf()" id="horaire_matin_debut">
                     @foreach($horaires as $horaire)
                         <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
                     @endforeach
                 </select>
                 A
-                <select class="select2" id="horaire_matin_fin">
+                <select class="select2" onchange="generatePdf()" id="horaire_matin_fin">
                     @foreach($horaires as $horaire)
                         <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
                     @endforeach
@@ -60,13 +60,13 @@
                 <div class="horaire-separator"></div>
 
                 De
-                <select class="select2" id="horaire_soir_debut">
+                <select class="select2" onchange="generatePdf()" id="horaire_soir_debut">
                     @foreach($horaires as $horaire)
                         <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
                     @endforeach
                 </select>
                 A
-                <select class="select2" id="horaire_soir_fin">
+                <select class="select2" onchange="generatePdf()" id="horaire_soir_fin">
                     @foreach($horaires as $horaire)
                         <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
                     @endforeach
