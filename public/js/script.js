@@ -233,12 +233,14 @@ function generatePdf(returnPdf = false)
             {
                 window.open(response, '_blank');
 
-                $.ajax({
-                    url: '/removeFile',
-                    type: 'POST',
-                    headers: {  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')  },
-                    data: { response },
-                })
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/removeFile',
+                        type: 'POST',
+                        headers: {  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')  },
+                        data: { response },
+                    })
+                }, 2500)
             }
             else
             {
