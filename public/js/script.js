@@ -113,7 +113,8 @@ function updateHoraireDisplay(type)
     });
 
     $(`#cadre-horaire-${type}`).append();
-    ;
+
+    generatePdf();
 }
 
 function removeThisDate(type, index)
