@@ -223,6 +223,7 @@ body
     margin: 20px;
     border: 1px solid #ddd;
     position: relative;
+    overflow-y: scroll;
 }
 
 button
