@@ -11,9 +11,8 @@ body
 
 .container
 {
-    width: 25vw;
-    height: auto;
-    padding: 10px;
+    width: 60vw;
+    height: 80vh;
     background-color: #2b3647;
     border-bottom: 3px solid #6f82a398;
     border-radius: 10px;
@@ -36,8 +35,8 @@ body
 
 .pdf-container
 {
-    aspect-ratio: 210 / 297;
-    height: 900px;
+    width: 30vw;
+    height: 80vh;
     background-color: #2b3647;
     border-bottom: 3px solid #6f82a398;
     border-radius: 10px;
@@ -95,7 +94,6 @@ body
 .pastille-ferie   { background-color: #ffb7f2; }
 .pastille-maladie { background-color: #00b050; }
 .pastille-cours   { background-color: #86b9ff; }
-.pastille-empty   { border: 1px solid red;     }
 
 .fakeHr
 {
@@ -257,66 +255,4 @@ button:hover
 {
     aspect-ratio: 1;
     width: 30px;
-}
-
-.d-none
-{
-    display: none;
-}
-
-.hoverInteractive:hover
-{
-    background-color: red !important;
-    cursor: pointer !important;
-}
-
-.specialDayContainer
-{
-    display: flex;
-    gap: 5px;
-    justify-content: space-around;
-}
-
-.specialDayItem
-{
-    width: 50px;
-    aspect-ratio: 1;
-    border-radius: 50px;
-    position: relative;
-    margin-bottom: 18px;
-    transition: 0.2s;
-    opacity: 75%;
-}
-
-.specialDayItemSelected
-{
-    opacity: 100%;
-}
-
-.specialDayItem:hover
-{
-    opacity: 40%;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.specialDayItem div
-{
-    position: absolute;
-    bottom: -30px;
-    color: white;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.specialDayItemSelected div
-{
-    color: #ea1356;
-}
-
-.container-parent
-{
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
 }

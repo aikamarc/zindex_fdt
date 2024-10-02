@@ -2,7 +2,7 @@
     <div class="paddingPdf">
 
         <div class="titleZindex">
-            <div class="titlePdf">Z-INDEX - Gestion du temps de travail</div>
+            <div class="titlePdf">Z-INDEX - Gestion du temps de travail {{ $isEditing }} >>>></div>
             <div class="datePdf">{{ $mois }}-{{ $annee }}</div>
             <div class="identitePdf">@if($nom == null && $prenom == null) Nom Prénom @else {{ $nom }} {{ $prenom }} @endif</div>
         </div>
@@ -46,6 +46,9 @@
                         @elseif($date['j_ferie'])   style="background-color: #ffb7f2;"
                         @elseif($date['j_maladie']) style="background-color: #00b050;"
                         @elseif($date['j_cours'])   style="background-color: #86b9ff;"
+                        @endif
+                        @if($isEditing)
+                            class="hoverInteractive" onclick="addInteractiveDay($key)"
                         @endif
                     >
                         <td width="16%">{{ $date['dates'] }}</td>

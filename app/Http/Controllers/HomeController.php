@@ -271,6 +271,9 @@ class HomeController extends Controller
 
         $signature = $request->signature;
 
+        $isEditing = true;
+        if($request->returnPdf == "true") { $isEditing = false; }
+
         $data = [
             'matin_debut'   => $request->base_horaire_matin_debut,
             'matin_fin'     => $request->base_horaire_matin_fin,
@@ -290,6 +293,7 @@ class HomeController extends Controller
             'totalDiff'     => $this->timeDifference($totalPrevu, $totalRealise),
             'download'      => $request->returnPdf,
             'signature'     => $signature,
+            'isEditing'     => $isEditing,
         ];
 
         if($request->returnPdf == "true")

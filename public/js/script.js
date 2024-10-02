@@ -273,3 +273,10 @@ function dataURLToBlob(dataURL) {
     }
     return new Blob([new Uint8Array(array)], { type: 'image/png' });
 }
+
+function updateSpecialDaySelected(element, type)
+{
+    $('.specialDayItemSelected').removeClass('specialDayItemSelected');
+    $(element).addClass('specialDayItemSelected');
+    $('#current_special_day').val(type);
+}
