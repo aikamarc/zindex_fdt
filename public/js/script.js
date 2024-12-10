@@ -74,43 +74,19 @@ function getDateDebutFin()
     });
 }
 
-
-function addJourArray(element, type)
-{
-    if($(element).val() != null)
-    {
-        let value = $(element).val();
-        $(element).val("null").trigger("change");
-
-        let find = false;
-
-        Array.from( jour_modifie[type] ).forEach(function(item, index) {
-            if(item == value)
-            {
-                find = true;
-            }
-        });
-
-        if(find == false)
-        {
-            jour_modifie[type][counter] = value;
-            counter++;
-        }
-    }
-    updateHoraireDisplay(type);
-    generatePdf()
-}
-
 function updateHoraireDisplay(type)
 {
     $(`#cadre-horaire-${type}`).html('');
 
-    Array.from( jour_modifie[type] ).forEach(function(element, index) {
-        if(element != undefined )
-        {
-            $(`#cadre-horaire-${type}`).append(`<div onclick="removeThisDate('${type}', '${index}')">${element}</div>`)
-        }
-    });
+    if(type != "AUCUN" && type != "ADD1H" && type != "REM1H")
+    {
+        Array.from( jour_modifie[type] ).forEach(function(element, index) {
+            if(element != undefined )
+            {
+                $(`#cadre-horaire-${type}`).append(`<div onclick="removeThisDate('${type}', '${index}')">${element}</div>`)
+            }
+        });
+    }
 
     $(`#cadre-horaire-${type}`).append();
 
@@ -138,11 +114,11 @@ function add_horaire_modif()
     horaire_modif[horaire_counter]['soir_debut']  = $('#select_horaire_modif_soir_debut').val();
     horaire_modif[horaire_counter]['soir_fin']    = $('#select_horaire_modif_soir_fin').val();
 
-    $('#select_horaire_modif').val("null").trigger("change");
-    $('#select_horaire_modif_matin_debut').val("null").trigger("change");
-    $('#select_horaire_modif_matin_fin').val("null").trigger("change");
-    $('#select_horaire_modif_soir_debut').val("null").trigger("change");
-    $('#select_horaire_modif_soir_fin').val("null").trigger("change");
+    // $('#select_horaire_modif').val("null").trigger("change");
+    // $('#select_horaire_modif_matin_debut').val("null").trigger("change");
+    // $('#select_horaire_modif_matin_fin').val("null").trigger("change");
+    // $('#select_horaire_modif_soir_debut').val("null").trigger("change");
+    // $('#select_horaire_modif_soir_fin').val("null").trigger("change");
 
     horaire_counter++;
 
@@ -279,4 +255,126 @@ function updateSpecialDaySelected(element, type)
     $('.specialDayItemSelected').removeClass('specialDayItemSelected');
     $(element).addClass('specialDayItemSelected');
     $('#current_special_day').val(type);
+}
+
+function addJourArray(element, type)
+{
+    if($(element).val() != null)
+    {
+        let value = $(element).val();
+        $(element).val("null").trigger("change");
+
+        let find = false;
+
+        Array.from( jour_modifie[type] ).forEach(function(item, index) {
+            if(item == value)
+            {
+                find = true;
+            }
+        });
+
+        if(find == false)
+        {
+            jour_modifie[type][counter] = value;
+            counter++;
+        }
+    }
+    updateHoraireDisplay(type);
+    generatePdf()
+}
+
+function addInteractiveDay(date, element=null)
+{
+    if($('#current_special_day').val() == "AUCUN")
+    {
+        jour_modifie['cours'][jour_modifie['cours'].indexOf(date)] = null;
+        jour_modifie['ferie'][jour_modifie['ferie'].indexOf(date)] = null;
+        jour_modifie['maladie'][jour_modifie['maladie'].indexOf(date)] = null;
+        jour_modifie['paye'][jour_modifie['paye'].indexOf(date)] = null;
+    }
+    else if($('#current_special_day').val() == "ADD1H" || $('#current_special_day').val() == "REM1H")
+    {
+        if(element != null) {
+
+            let date0 = $($(element).parent().find('.hoverTdPdf')[0]).html().replaceAll(' ', '');
+            let date1 = $($(element).parent().find('.hoverTdPdf')[1]).html().replaceAll(' ', '');
+            let date2 = $($(element).parent().find('.hoverTdPdf')[2]).html().replaceAll(' ', '');
+            let date3 = $($(element).parent().find('.hoverTdPdf')[3]).html().replaceAll(' ', '');
+
+            if($($(element).parent().find('.hoverTdPdf')[0]).attr('id') == $(element).attr('id'))
+            {
+                let [hours, minutes] = date0.split(":").map(Number);
+                hours += 1;
+                if($('#current_special_day').val() == "REM1H") { hours -= 2; }
+                if (hours >= 24) { hours -= 24; }
+                if (hours < 0)   { hours += 24; }
+                let formattedHours = String(hours).padStart(2, "0");
+                let formattedMinutes = String(minutes).padStart(2, "0");
+                date0 = `${formattedHours}:${formattedMinutes}`;
+            }
+            if($($(element).parent().find('.hoverTdPdf')[1]).attr('id') == $(element).attr('id'))
+            {
+                let [hours, minutes] = date1.split(":").map(Number);
+                hours += 1;
+                if($('#current_special_day').val() == "REM1H") { hours -= 2; }
+                if (hours >= 24) { hours -= 24; }
+                if (hours < 0)   { hours += 24; }
+                let formattedHours = String(hours).padStart(2, "0");
+                let formattedMinutes = String(minutes).padStart(2, "0");
+                date1 = `${formattedHours}:${formattedMinutes}`;
+            }
+            if($($(element).parent().find('.hoverTdPdf')[2]).attr('id') == $(element).attr('id'))
+            {
+                let [hours, minutes] = date2.split(":").map(Number);
+                hours += 1;
+                if($('#current_special_day').val() == "REM1H") { hours -= 2; }
+                if (hours >= 24) { hours -= 24; }
+                if (hours < 0)   { hours += 24; }
+                let formattedHours = String(hours).padStart(2, "0");
+                let formattedMinutes = String(minutes).padStart(2, "0");
+                date2 = `${formattedHours}:${formattedMinutes}`;
+            }
+            if($($(element).parent().find('.hoverTdPdf')[3]).attr('id') == $(element).attr('id'))
+            {
+                let [hours, minutes] = date3.split(":").map(Number);
+                hours += 1;
+                if($('#current_special_day').val() == "REM1H") { hours -= 2; }
+                if (hours >= 24) { hours -= 24; }
+                if (hours < 0)   { hours += 24; }
+                let formattedHours = String(hours).padStart(2, "0");
+                let formattedMinutes = String(minutes).padStart(2, "0");
+                date3 = `${formattedHours}:${formattedMinutes}`;
+            }
+
+            $('#select_horaire_modif').val(date).trigger('change');
+            $('#select_horaire_modif_matin_debut').val(date0).trigger('change');
+            $('#select_horaire_modif_matin_fin').val(date1).trigger('change');
+            $('#select_horaire_modif_soir_debut').val(date2).trigger('change');
+            $('#select_horaire_modif_soir_fin').val(date3).trigger('change');
+
+            add_horaire_modif();
+        }
+
+    }
+    else if($('#current_special_day').val() != null)
+    {
+        let value = date;
+        let find = false;
+
+        Array.from( jour_modifie[$('#current_special_day').val()] ).forEach(function(item, index) {
+            if(item == value)
+            {
+                find = true;
+            }
+        });
+
+        if(find == false)
+        {
+            jour_modifie[$('#current_special_day').val()][counter] = value;
+            counter++;
+        }
+    }
+
+    updateHoraireDisplay($('#current_special_day').val());
+    generatePdf()
 }

@@ -66,6 +66,13 @@ body
     display: flex;
 }
 
+.labelForm
+{
+    text-indent: 5px;
+    color: white;
+    margin-bottom: 3px;
+}
+
 .groupLabel
 {
     padding-bottom: 5px;
@@ -73,6 +80,16 @@ body
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.groupForm
+{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid white;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .inputForm
@@ -95,7 +112,8 @@ body
 .pastille-ferie   { background-color: #ffb7f2; }
 .pastille-maladie { background-color: #00b050; }
 .pastille-cours   { background-color: #86b9ff; }
-.pastille-empty   { border: 1px solid red;     }
+.pastille-empty   { border: 1px solid rgb(0, 0, 0);     }
+.pastille-hours   { background-color: #a01c1c; }
 
 .fakeHr
 {
@@ -152,7 +170,7 @@ body
 {
     opacity: 80%;
     cursor: pointer;
-    color: red;
+    color: rgba(2, 2, 2, 0.5);
 }
 
 .disNone
@@ -187,7 +205,7 @@ body
 {
     opacity: 80%;
     cursor: pointer;
-    color: red;
+    color: rgba(2, 2, 2, 0.5);
 }
 
 .signatureContainer
@@ -264,9 +282,14 @@ button:hover
     display: none;
 }
 
+.hoverInteractive
+{
+    position: relative;
+}
+
 .hoverInteractive:hover
 {
-    background-color: red !important;
+    background-color: rgba(2, 2, 2, 0.178) !important;
     cursor: pointer !important;
 }
 
@@ -286,6 +309,10 @@ button:hover
     margin-bottom: 18px;
     transition: 0.2s;
     opacity: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
 .specialDayItemSelected
@@ -307,6 +334,7 @@ button:hover
     color: white;
     left: 50%;
     transform: translate(-50%, -50%);
+    white-space: nowrap;
 }
 
 .specialDayItemSelected div
@@ -319,4 +347,27 @@ button:hover
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.centHeight
+{
+    height: 100px;
+}
+
+.fixSelectSize .select2 {
+    min-width: 100px;
+}
+
+.hoverTdPdf:hover {
+    background-color: rgba(0, 0, 0, 0.35) !important;
+}
+
+.forceRound
+{
+    aspect-ratio: 1;
+    height: 30px;
+}
+
+#pdf-container::-webkit-scrollbar {
+    display: none;
 }
