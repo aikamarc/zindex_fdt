@@ -47,25 +47,36 @@ class HomeController extends Controller
     /**
      * "mois" => "05"
      * "annee" => "2024"
+     * "day" => "default"
      */
     public function getDateDebutFin(Request $request)
     {
         $dateDebutMois = \Carbon\Carbon::create($request->annee, $request->mois, 1);
 
-        if ($dateDebutMois->dayOfWeek !== \Carbon\Carbon::MONDAY) {
-            $dateDebutMois->modify('last monday');
+        if ($request->day !== 'default') {
+            $jour = (int)$request->day;
+            if ($jour >= 1 && $jour <= $dateDebutMois->daysInMonth) {
+                $dateDebutMois->day = $jour;
+            } else {
+                return response()->json(['error' => 'Invalid day value'], 400);
+            }
+        } else {
+            if ($dateDebutMois->dayOfWeek !== \Carbon\Carbon::MONDAY) {
+                $dateDebutMois->modify('last monday');
+            }
         }
 
-        $dateFinMois = \Carbon\Carbon::create($request->annee, $request->mois, 1)->endOfMonth();
+        $dateFinMois = (clone $dateDebutMois)->addWeeks(5)->subDay();
 
         if ($dateFinMois->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
             $dateFinMois->modify('next sunday');
         }
 
         $dates = [];
-        while ($dateDebutMois <= $dateFinMois) {
-            $dates[] = $dateDebutMois->format('d/m/Y');
-            $dateDebutMois->addDay();
+        $currentDate = $dateDebutMois->copy();
+        while ($currentDate <= $dateFinMois) {
+            $dates[] = $currentDate->format('d/m/Y');
+            $currentDate->addDay();
         }
 
         return response()->json(['dates' => $dates]);
@@ -172,30 +183,49 @@ class HomeController extends Controller
 
     public function generatePDF(Request $request)
     {
+        // Création de la date de début en fonction de l'année et du mois
         $dateDebutMois = \Carbon\Carbon::create($request->year, $request->month, 1);
 
-        if ($dateDebutMois->dayOfWeek !== \Carbon\Carbon::MONDAY) {
-            $dateDebutMois->modify('last monday');
+        // Si le jour est différent de "default", ajuster la date de début
+        if ($request->day !== 'default') {
+            // Vérifie que $request->day est un jour valide
+            $jour = (int)$request->day;
+            if ($jour >= 1 && $jour <= $dateDebutMois->daysInMonth) {
+                $dateDebutMois->day = $jour;
+            } else {
+                return response()->json(['error' => 'Invalid day value'], 400);
+            }
+        } else {
+            // Ajuster au dernier lundi si le jour est "default"
+            if ($dateDebutMois->dayOfWeek !== \Carbon\Carbon::MONDAY) {
+                $dateDebutMois->modify('last monday');
+            }
         }
 
-        $dateFinMois = \Carbon\Carbon::create($request->year, $request->month, 1)->endOfMonth();
+        // Calcul de la date de fin
+        $dateFinMois = (clone $dateDebutMois)->addWeeks(5)->subDay(); // Inclure 5 semaines depuis la date de début
 
+        // Ajuster la date de fin au prochain dimanche si nécessaire
         if ($dateFinMois->dayOfWeek !== \Carbon\Carbon::SUNDAY) {
             $dateFinMois->modify('next sunday');
         }
 
+        // Génération des dates
         $dates = [];
+        $currentDate = $dateDebutMois->copy();
 
-        while ($dateDebutMois <= $dateFinMois) {
+        while ($currentDate <= $dateFinMois) {
             $dates[] = [
-                "dates"     => $dateDebutMois->format('d/m/Y'),
-                "disabled"  => $dateDebutMois->format('m') != $request->month,
-                "j_paye"    => in_array($dateDebutMois->format('d/m/Y'),  explode(",", $request->j_paye   ) ?? []),
-                "j_ferie"   => in_array($dateDebutMois->format('d/m/Y'),  explode(",", $request->j_ferie  ) ?? []),
-                "j_maladie" => in_array($dateDebutMois->format('d/m/Y'),  explode(",", $request->j_maladie) ?? []),
-                "j_cours"   => in_array($dateDebutMois->format('d/m/Y'),  explode(",", $request->j_cours  ) ?? []),
+                "dates"     => $currentDate->format('d/m/Y'),
+                "disabled"  => $currentDate->format('m') != $request->month,
+                "j_paye"    => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_paye) ?? []),
+                "j_matin"   => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_matin) ?? []),
+                "j_aprem"   => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_aprem) ?? []),
+                "j_ferie"   => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_ferie) ?? []),
+                "j_maladie" => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_maladie) ?? []),
+                "j_cours"   => in_array($currentDate->format('d/m/Y'), explode(",", $request->j_cours) ?? []),
             ];
-            $dateDebutMois->addDay();
+            $currentDate->addDay();
         }
 
         $allDates = array_chunk($dates, 7);
@@ -220,8 +250,6 @@ class HomeController extends Controller
             }
         }
 
-        $additionBaseHoraire = $this->calculerDureeTotale($request->base_horaire_matin_debut, $request->base_horaire_matin_fin, $request->base_horaire_soir_debut, $request->base_horaire_soir_fin);
-
         $cumulPrevu = [];
         foreach($allDates as $index => $semaine)
         {
@@ -229,6 +257,34 @@ class HomeController extends Controller
 
             foreach($semaine as $c => $jour)
             {
+                if($allDates[$index][$c]["j_matin"])    {
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_lundi_horaire_soir_debut, $request->base_lundi_horaire_soir_fin);        break;
+                        case 'Tuesday':   $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_mardi_horaire_soir_debut, $request->base_mardi_horaire_soir_fin);        break;
+                        case 'Wednesday': $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale("0:00", "0:00", $request->base_mercredi_horaire_soir_debut, $request->base_mercredi_horaire_soir_fin);  break;
+                        case 'Thursday':  $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_jeudi_horaire_soir_debut, $request->base_jeudi_horaire_soir_fin);        break;
+                        case 'Friday':    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale("0:00", "0:00", $request->base_vendredi_horaire_soir_debut, $request->base_vendredi_horaire_soir_fin);  break;
+                    }
+                }
+                elseif($allDates[$index][$c]["j_aprem"])    {
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale($request->base_lundi_horaire_matin_debut, $request->base_lundi_horaire_matin_fin ,"0:00", "0:00");       break;
+                        case 'Tuesday':   $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale($request->base_mardi_horaire_matin_debut, $request->base_mardi_horaire_matin_fin, "0:00", "0:00");       break;
+                        case 'Wednesday': $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale($request->base_mercredi_horaire_matin_debut, $request->base_mercredi_horaire_matin_fin, "0:00", "0:00"); break;
+                        case 'Thursday':  $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale($request->base_jeudi_horaire_matin_debut, $request->base_jeudi_horaire_matin_fin, "0:00", "0:00");       break;
+                        case 'Friday':    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale($request->base_vendredi_horaire_matin_debut, $request->base_vendredi_horaire_matin_fin, "0:00", "0:00"); break;
+                    }
+                }
+                else {
+                    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale($request->base_lundi_horaire_matin_debut, $request->base_lundi_horaire_matin_fin, $request->base_lundi_horaire_soir_debut, $request->base_lundi_horaire_soir_fin);
+                    $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale($request->base_mardi_horaire_matin_debut, $request->base_mardi_horaire_matin_fin, $request->base_mardi_horaire_soir_debut, $request->base_mardi_horaire_soir_fin);
+                    $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale($request->base_mercredi_horaire_matin_debut, $request->base_mercredi_horaire_matin_fin, $request->base_mercredi_horaire_soir_debut, $request->base_mercredi_horaire_soir_fin);
+                    $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale($request->base_jeudi_horaire_matin_debut, $request->base_jeudi_horaire_matin_fin, $request->base_jeudi_horaire_soir_debut, $request->base_jeudi_horaire_soir_fin);
+                    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale($request->base_vendredi_horaire_matin_debut, $request->base_vendredi_horaire_matin_fin, $request->base_vendredi_horaire_soir_debut, $request->base_vendredi_horaire_soir_fin);
+                }
+
                 if(explode('/',$jour['dates'])[1] != $request->month) { /* Ne rien faire */ }
                 elseif(in_array(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'), ['Saturday', 'Sunday'])) { /* Ne rien faire */ }
                 elseif($allDates[$index][$c]["j_paye"])     { /* Ne rien faire */ }
@@ -237,18 +293,54 @@ class HomeController extends Controller
                 elseif($allDates[$index][$c]["j_cours"])    { /* Ne rien faire */ }
                 else
                 {
-                    $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire]);
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire_lundi[$index.$c]]);    break;
+                        case 'Tuesday':   $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire_mardi[$index.$c]]);    break;
+                        case 'Wednesday': $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire_mercredi[$index.$c]]); break;
+                        case 'Thursday':  $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire_jeudi[$index.$c]]);    break;
+                        case 'Friday':    $cumulPrevu[$index] = $this->addTimes([$cumulPrevu[$index], $additionBaseHoraire_vendredi[$index.$c]]); break;
+                    }
                 }
             }
         }
 
         $cumulRealise = [];
+
         foreach($allDates as $index => $semaine)
         {
             $cumulRealise[$index] = "00:00";
 
             foreach($semaine as $c => $jour)
             {
+                if($allDates[$index][$c]["j_matin"])    {
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_lundi_horaire_soir_debut, $request->base_lundi_horaire_soir_fin);        break;
+                        case 'Tuesday':   $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_mardi_horaire_soir_debut, $request->base_mardi_horaire_soir_fin);        break;
+                        case 'Wednesday': $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale("0:00", "0:00", $request->base_mercredi_horaire_soir_debut, $request->base_mercredi_horaire_soir_fin);  break;
+                        case 'Thursday':  $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale("0:00", "0:00", $request->base_jeudi_horaire_soir_debut, $request->base_jeudi_horaire_soir_fin);        break;
+                        case 'Friday':    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale("0:00", "0:00", $request->base_vendredi_horaire_soir_debut, $request->base_vendredi_horaire_soir_fin);  break;
+                    }
+                }
+                elseif($allDates[$index][$c]["j_aprem"])    {
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale($request->base_lundi_horaire_matin_debut, $request->base_lundi_horaire_matin_fin ,"0:00", "0:00");       break;
+                        case 'Tuesday':   $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale($request->base_mardi_horaire_matin_debut, $request->base_mardi_horaire_matin_fin, "0:00", "0:00");       break;
+                        case 'Wednesday': $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale($request->base_mercredi_horaire_matin_debut, $request->base_mercredi_horaire_matin_fin, "0:00", "0:00"); break;
+                        case 'Thursday':  $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale($request->base_jeudi_horaire_matin_debut, $request->base_jeudi_horaire_matin_fin, "0:00", "0:00");       break;
+                        case 'Friday':    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale($request->base_vendredi_horaire_matin_debut, $request->base_vendredi_horaire_matin_fin, "0:00", "0:00"); break;
+                    }
+                }
+                else {
+                    $additionBaseHoraire_lundi[$index.$c]      = $this->calculerDureeTotale($request->base_lundi_horaire_matin_debut, $request->base_lundi_horaire_matin_fin, $request->base_lundi_horaire_soir_debut, $request->base_lundi_horaire_soir_fin);
+                    $additionBaseHoraire_mardi[$index.$c]      = $this->calculerDureeTotale($request->base_mardi_horaire_matin_debut, $request->base_mardi_horaire_matin_fin, $request->base_mardi_horaire_soir_debut, $request->base_mardi_horaire_soir_fin);
+                    $additionBaseHoraire_mercredi[$index.$c]   = $this->calculerDureeTotale($request->base_mercredi_horaire_matin_debut, $request->base_mercredi_horaire_matin_fin, $request->base_mercredi_horaire_soir_debut, $request->base_mercredi_horaire_soir_fin);
+                    $additionBaseHoraire_jeudi[$index.$c]      = $this->calculerDureeTotale($request->base_jeudi_horaire_matin_debut, $request->base_jeudi_horaire_matin_fin, $request->base_jeudi_horaire_soir_debut, $request->base_jeudi_horaire_soir_fin);
+                    $additionBaseHoraire_vendredi[$index.$c]   = $this->calculerDureeTotale($request->base_vendredi_horaire_matin_debut, $request->base_vendredi_horaire_matin_fin, $request->base_vendredi_horaire_soir_debut, $request->base_vendredi_horaire_soir_fin);
+                }
+
                 if(array_key_exists($jour['dates'], $horaire_modif))
                 {
                     $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $horaire_modif[$jour['dates']]['cumul']]);
@@ -261,7 +353,15 @@ class HomeController extends Controller
                 elseif($allDates[$index][$c]["j_cours"])    { /* Ne rien faire */ }
                 else
                 {
-                    $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire]);
+                    // $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire]);
+                    switch(DateTime::createFromFormat('d/m/Y', $jour['dates'])->format('l'))
+                    {
+                        case 'Monday':    $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire_lundi[$index.$c]]);    break;
+                        case 'Tuesday':   $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire_mardi[$index.$c]]);    break;
+                        case 'Wednesday': $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire_mercredi[$index.$c]]); break;
+                        case 'Thursday':  $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire_jeudi[$index.$c]]);    break;
+                        case 'Friday':    $cumulRealise[$index] = $this->addTimes([$cumulRealise[$index], $additionBaseHoraire_vendredi[$index.$c]]); break;
+                    }
                 }
             }
         }
@@ -275,30 +375,50 @@ class HomeController extends Controller
         if($request->returnPdf == "true") { $isEditing = false; }
 
         $data = [
-            'matin_debut'   => $request->base_horaire_matin_debut,
-            'matin_fin'     => $request->base_horaire_matin_fin,
-            'soir_debut'    => $request->base_horaire_soir_debut,
-            'soir_fin'      => $request->base_horaire_soir_fin,
-            'cumul_prevu'   => $additionBaseHoraire,
-            'nom'           => $request->p_nom,
-            'prenom'        => $request->p_prenom,
-            'dates'         => $allDates,
-            'mois'          => $this->getMois($request->month),
-            'annee'         => $request->year,
-            'horaire_modif' => $horaire_modif,
-            'cumulRealise'  => $cumulRealise,
-            'cumulPrevu'    => $cumulPrevu,
-            'totalPrevu'    => $totalPrevu,
-            'totalRealise'  => $totalRealise,
-            'totalDiff'     => $this->timeDifference($totalPrevu, $totalRealise),
-            'download'      => $request->returnPdf,
-            'signature'     => $signature,
-            'isEditing'     => $isEditing,
+            'lundi_matin_debut'     => $request->base_lundi_horaire_matin_debut,
+            'lundi_matin_fin'       => $request->base_lundi_horaire_matin_fin,
+            'lundi_soir_debut'      => $request->base_lundi_horaire_soir_debut,
+            'lundi_soir_fin'        => $request->base_lundi_horaire_soir_fin,
+            'mardi_matin_debut'     => $request->base_mardi_horaire_matin_debut,
+            'mardi_matin_fin'       => $request->base_mardi_horaire_matin_fin,
+            'mardi_soir_debut'      => $request->base_mardi_horaire_soir_debut,
+            'mardi_soir_fin'        => $request->base_mardi_horaire_soir_fin,
+            'mercredi_matin_debut'  => $request->base_mercredi_horaire_matin_debut,
+            'mercredi_matin_fin'    => $request->base_mercredi_horaire_matin_fin,
+            'mercredi_soir_debut'   => $request->base_mercredi_horaire_soir_debut,
+            'mercredi_soir_fin'     => $request->base_mercredi_horaire_soir_fin,
+            'jeudi_matin_debut'     => $request->base_jeudi_horaire_matin_debut,
+            'jeudi_matin_fin'       => $request->base_jeudi_horaire_matin_fin,
+            'jeudi_soir_debut'      => $request->base_jeudi_horaire_soir_debut,
+            'jeudi_soir_fin'        => $request->base_jeudi_horaire_soir_fin,
+            'vendredi_matin_debut'  => $request->base_vendredi_horaire_matin_debut,
+            'vendredi_matin_fin'    => $request->base_vendredi_horaire_matin_fin,
+            'vendredi_soir_debut'   => $request->base_vendredi_horaire_soir_debut,
+            'vendredi_soir_fin'     => $request->base_vendredi_horaire_soir_fin,
+            'cumul_prevu_lundi'     => $additionBaseHoraire_lundi,
+            'cumul_prevu_mardi'     => $additionBaseHoraire_mardi,
+            'cumul_prevu_mercredi'  => $additionBaseHoraire_mercredi,
+            'cumul_prevu_jeudi'     => $additionBaseHoraire_jeudi,
+            'cumul_prevu_vendredi'  => $additionBaseHoraire_vendredi,
+            'nom'                   => $request->p_nom,
+            'prenom'                => $request->p_prenom,
+            'dates'                 => $allDates,
+            'mois'                  => $this->getMois($request->month),
+            'annee'                 => $request->year,
+            'horaire_modif'         => $horaire_modif,
+            'cumulRealise'          => $cumulRealise,
+            'cumulPrevu'            => $cumulPrevu,
+            'totalPrevu'            => $totalPrevu,
+            'totalRealise'          => $totalRealise,
+            'totalDiff'             => $this->timeDifference($totalPrevu, $totalRealise),
+            'download'              => $request->returnPdf,
+            'signature'             => $signature,
+            'isEditing'             => $isEditing,
         ];
 
         if($request->returnPdf == "true")
         {
-            $filename = time() . "_FDT.pdf";
+            $filename = strtoupper($request->p_prenom) . "-" . strtoupper($request->p_nom) . "-" . strtoupper($this->removeAccents($this->getMois($request->month))) . "-" . strtoupper($request->year) . ".pdf";
 
             $pdf = Pdf::loadView('pdf', $data)->setPaper('a4', 'portrait');
             $pdf->save(public_path() . '/' . $filename);
@@ -311,5 +431,30 @@ class HomeController extends Controller
         {
             return view('pdf', $data);
         }
+    }
+
+    function removeAccents($string)
+    {
+        $unwantedChars = [
+            'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'AE',
+            'Ç' => 'C',
+            'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E',
+            'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I',
+            'Ð' => 'D', 'Ñ' => 'N',
+            'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ø' => 'O',
+            'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U',
+            'Ý' => 'Y',
+            'Þ' => 'TH', 'ß' => 'ss',
+            'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'ae',
+            'ç' => 'c',
+            'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e',
+            'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i',
+            'ð' => 'd', 'ñ' => 'n',
+            'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o', 'ø' => 'o',
+            'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u',
+            'ý' => 'y', 'þ' => 'th', 'ÿ' => 'y'
+        ];
+
+        return strtr($string, $unwantedChars);
     }
 }

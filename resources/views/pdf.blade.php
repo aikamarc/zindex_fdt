@@ -43,6 +43,8 @@
             <table class="temps-table">
             @foreach($dateArray as $key => $date)
                     <tr     @if($date['j_paye'])    style="background-color: #ffff00;"
+                        @elseif($date['j_matin'])   style="background-color: #ffff00;"
+                        @elseif($date['j_aprem'])   style="background-color: #ffff00;"
                         @elseif($date['j_ferie'])   style="background-color: #ffb7f2;"
                         @elseif($date['j_maladie']) style="background-color: #00b050;"
                         @elseif($date['j_cours'])   style="background-color: #86b9ff;"
@@ -54,16 +56,86 @@
                         @endif
                     >
                         <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="16%">{{ $date['dates'] }}</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $matin_debut }} @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $matin_fin }}   @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $soir_debut }}  @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $soir_fin }}    @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="14%">@if($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) 00:00 @else {{ $cumul_prevu }} @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_1" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['matin_debut'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $matin_debut }} @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_2" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['matin_fin'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $matin_fin }}   @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_3" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['soir_debut'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $soir_debut }}  @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_4" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['soir_fin'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie']) 00:00 @else {{ $soir_fin }}    @endif</td>
-                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="14%">@if(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['cumul'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) 00:00 @else {{ $cumul_prevu }} @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_matin']) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_matin_debut }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_matin']) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_matin_fin }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_aprem']) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_soir_debut }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_aprem']) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_soir_fin }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="14%">@if($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $cumul_prevu_lundi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $cumul_prevu_mardi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $cumul_prevu_mercredi[$counter.$key] }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $cumul_prevu_jeudi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $cumul_prevu_vendredi[$counter.$key] }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_1" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['matin_debut'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_matin']) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_matin_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_matin_debut }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_2" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['matin_fin'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_matin']) 00:00   @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_matin_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_matin_fin }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_3" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['soir_debut'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_aprem']) 00:00  @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_soir_debut }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_soir_debut }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) id="{{ $key }}_4" class="hoverTdPdf" onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="7%">@if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) @elseif(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['soir_fin'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || $date['j_aprem']) 00:00    @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $lundi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $mardi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $mercredi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $jeudi_soir_fin }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $vendredi_soir_fin }}
+                                @endif
+                            @endif</td>
+                        <td @if(!in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) onclick="addInteractiveDay('{{ $date['dates'] }}', this)" @endif width="14%">@if(array_key_exists($date['dates'], $horaire_modif)) {{ $horaire_modif[$date['dates']]['cumul'] }} @elseif($date['disabled'] || $date['j_paye'] || $date['j_ferie'] || $date['j_maladie'] || in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Saturday', 'Sunday'])) 00:00 @else
+                                @if(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Monday']))        {{ $cumul_prevu_lundi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Tuesday']))   {{ $cumul_prevu_mardi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Wednesday'])) {{ $cumul_prevu_mercredi[$counter.$key] }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Thursday']))  {{ $cumul_prevu_jeudi[$counter.$key]    }}
+                                @elseif(in_array(DateTime::createFromFormat('d/m/Y', $date['dates'])->format('l'), ['Friday']))    {{ $cumul_prevu_vendredi[$counter.$key] }}
+                                @endif
+                            @endif</td>
                     </tr>
             @endforeach
                 <tr>

@@ -13,6 +13,8 @@ $(document).ready(function() {
     getDateDebutFin();
 
     jour_modifie['paye']    = [];
+    jour_modifie['matin']   = [];
+    jour_modifie['aprem']   = [];
     jour_modifie['ferie']   = [];
     jour_modifie['maladie'] = [];
     jour_modifie['cours']   = [];
@@ -31,6 +33,7 @@ function getDateDebutFin()
         {
             mois  : $('#month').val(),
             annee : $('#year').val(),
+            day   : $('#day').val(),
         },
     })
     .done(function(response) {
@@ -168,11 +171,35 @@ function generatePdf(returnPdf = false)
 {
     setTimeout(function () {
         let formData = new FormData();
-        formData.append('base_horaire_matin_debut', $('#horaire_matin_debut').val());
-        formData.append('base_horaire_matin_fin'  , $('#horaire_matin_fin').val());
-        formData.append('base_horaire_soir_debut' , $('#horaire_soir_debut').val());
-        formData.append('base_horaire_soir_fin'   , $('#horaire_soir_fin').val());
+
+        formData.append('base_lundi_horaire_matin_debut', $('#lundi_horaire_matin_debut').val());
+        formData.append('base_lundi_horaire_matin_fin'  , $('#lundi_horaire_matin_fin').val());
+        formData.append('base_lundi_horaire_soir_debut' , $('#lundi_horaire_soir_debut').val());
+        formData.append('base_lundi_horaire_soir_fin'   , $('#lundi_horaire_soir_fin').val());
+
+        formData.append('base_mardi_horaire_matin_debut', $('#mardi_horaire_matin_debut').val());
+        formData.append('base_mardi_horaire_matin_fin'  , $('#mardi_horaire_matin_fin').val());
+        formData.append('base_mardi_horaire_soir_debut' , $('#mardi_horaire_soir_debut').val());
+        formData.append('base_mardi_horaire_soir_fin'   , $('#mardi_horaire_soir_fin').val());
+
+        formData.append('base_mercredi_horaire_matin_debut', $('#mercredi_horaire_matin_debut').val());
+        formData.append('base_mercredi_horaire_matin_fin'  , $('#mercredi_horaire_matin_fin').val());
+        formData.append('base_mercredi_horaire_soir_debut' , $('#mercredi_horaire_soir_debut').val());
+        formData.append('base_mercredi_horaire_soir_fin'   , $('#mercredi_horaire_soir_fin').val());
+
+        formData.append('base_jeudi_horaire_matin_debut', $('#jeudi_horaire_matin_debut').val());
+        formData.append('base_jeudi_horaire_matin_fin'  , $('#jeudi_horaire_matin_fin').val());
+        formData.append('base_jeudi_horaire_soir_debut' , $('#jeudi_horaire_soir_debut').val());
+        formData.append('base_jeudi_horaire_soir_fin'   , $('#jeudi_horaire_soir_fin').val());
+
+        formData.append('base_vendredi_horaire_matin_debut', $('#vendredi_horaire_matin_debut').val());
+        formData.append('base_vendredi_horaire_matin_fin'  , $('#vendredi_horaire_matin_fin').val());
+        formData.append('base_vendredi_horaire_soir_debut' , $('#vendredi_horaire_soir_debut').val());
+        formData.append('base_vendredi_horaire_soir_fin'   , $('#vendredi_horaire_soir_fin').val());
+
         formData.append('j_paye'                  , jour_modifie['paye']);
+        formData.append('j_matin'                 , jour_modifie['matin']);
+        formData.append('j_aprem'                 , jour_modifie['aprem']);
         formData.append('j_ferie'                 , jour_modifie['ferie']);
         formData.append('j_maladie'               , jour_modifie['maladie']);
         formData.append('j_cours'                 , jour_modifie['cours']);
@@ -180,6 +207,7 @@ function generatePdf(returnPdf = false)
         formData.append('p_prenom'                , $('#input_prenom').val());
         formData.append('month'                   , $('#month').val());
         formData.append('year'                    , $('#year').val());
+        formData.append('day'                     , $('#day').val());
         formData.append('returnPdf'               , returnPdf);
 
         if(returnPdf == true)
@@ -291,15 +319,17 @@ function addInteractiveDay(date, element=null)
         jour_modifie['ferie'][jour_modifie['ferie'].indexOf(date)] = null;
         jour_modifie['maladie'][jour_modifie['maladie'].indexOf(date)] = null;
         jour_modifie['paye'][jour_modifie['paye'].indexOf(date)] = null;
+        jour_modifie['matin'][jour_modifie['matin'].indexOf(date)] = null;
+        jour_modifie['aprem'][jour_modifie['aprem'].indexOf(date)] = null;
     }
     else if($('#current_special_day').val() == "ADD1H" || $('#current_special_day').val() == "REM1H")
     {
         if(element != null) {
 
-            let date0 = $($(element).parent().find('.hoverTdPdf')[0]).html().replaceAll(' ', '');
-            let date1 = $($(element).parent().find('.hoverTdPdf')[1]).html().replaceAll(' ', '');
-            let date2 = $($(element).parent().find('.hoverTdPdf')[2]).html().replaceAll(' ', '');
-            let date3 = $($(element).parent().find('.hoverTdPdf')[3]).html().replaceAll(' ', '');
+            let date0 = $($(element).parent().find('.hoverTdPdf')[0]).html().replaceAll(' ', '').replaceAll('\n', '');
+            let date1 = $($(element).parent().find('.hoverTdPdf')[1]).html().replaceAll(' ', '').replaceAll('\n', '');
+            let date2 = $($(element).parent().find('.hoverTdPdf')[2]).html().replaceAll(' ', '').replaceAll('\n', '');
+            let date3 = $($(element).parent().find('.hoverTdPdf')[3]).html().replaceAll(' ', '').replaceAll('\n', '');
 
             if($($(element).parent().find('.hoverTdPdf')[0]).attr('id') == $(element).attr('id'))
             {
@@ -346,6 +376,15 @@ function addInteractiveDay(date, element=null)
                 date3 = `${formattedHours}:${formattedMinutes}`;
             }
 
+            console.log(
+                "date  : " + date,
+                "date0 : " + date0,
+                "date1 : " + date1,
+                "date2 : " + date2,
+                "date3 : " + date3,
+            );
+
+
             $('#select_horaire_modif').val(date).trigger('change');
             $('#select_horaire_modif_matin_debut').val(date0).trigger('change');
             $('#select_horaire_modif_matin_fin').val(date1).trigger('change');
@@ -360,6 +399,13 @@ function addInteractiveDay(date, element=null)
     {
         let value = date;
         let find = false;
+
+        jour_modifie['cours'][jour_modifie['cours'].indexOf(date)] = null;
+        jour_modifie['ferie'][jour_modifie['ferie'].indexOf(date)] = null;
+        jour_modifie['maladie'][jour_modifie['maladie'].indexOf(date)] = null;
+        jour_modifie['paye'][jour_modifie['paye'].indexOf(date)] = null;
+        jour_modifie['matin'][jour_modifie['matin'].indexOf(date)] = null;
+        jour_modifie['aprem'][jour_modifie['aprem'].indexOf(date)] = null;
 
         Array.from( jour_modifie[$('#current_special_day').val()] ).forEach(function(item, index) {
             if(item == value)
@@ -376,5 +422,17 @@ function addInteractiveDay(date, element=null)
     }
 
     updateHoraireDisplay($('#current_special_day').val());
+    generatePdf()
+}
+
+function updateOtherDate(element)
+{
+    let suffix = $(element).attr('id').replace('lundi', '');
+
+    $('#mardi' + suffix).val($(element).val()).trigger('change');
+    $('#mercredi' + suffix).val($(element).val()).trigger('change');
+    $('#jeudi' + suffix).val($(element).val()).trigger('change');
+    $('#vendredi' + suffix).val($(element).val()).trigger('change');
+
     generatePdf()
 }

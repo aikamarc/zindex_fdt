@@ -12,6 +12,8 @@
     <div class="container">
         <div class="specialDayContainer">
             <div onclick="updateSpecialDaySelected(this, 'paye')"    class="specialDayItem pastille-conge"><div>Congés</div></div>
+            <div onclick="updateSpecialDaySelected(this, 'matin')"    class="specialDayItem pastille-conge"><div>AM</div></div>
+            <div onclick="updateSpecialDaySelected(this, 'aprem')"    class="specialDayItem pastille-conge"><div>PM</div></div>
             <div onclick="updateSpecialDaySelected(this, 'ferie')"   class="specialDayItem pastille-ferie"><div>Ferié</div></div>
             <div onclick="updateSpecialDaySelected(this, 'maladie')" class="specialDayItem pastille-maladie"><div>Maladie</div></div>
             <div onclick="updateSpecialDaySelected(this, 'cours')"   class="specialDayItem pastille-cours"><div>Cours</div></div>
@@ -46,6 +48,41 @@
                 <option value="{{ date("Y") }}" selected>{{ date("Y") }}</option>
                 <option value="{{ date("Y", strtotime("+1 year")) }}">{{ date("Y", strtotime("+1 year")) }}</option>
             </select>
+
+            <select class="select2" id="day" name="day" onchange="getDateDebutFin()">
+                <option value="default" selected>Défaut</option>
+                <option value="01">01</option>
+                <option value="02">02</option>
+                <option value="03">03</option>
+                <option value="04">04</option>
+                <option value="05">05</option>
+                <option value="06">06</option>
+                <option value="07">07</option>
+                <option value="08">08</option>
+                <option value="09">09</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+            </select>
         </div>
 
         <br>
@@ -59,31 +96,122 @@
         <br>
 
         <div class="labelForm">Horaire Prévus</div>
-        <div class="groupForm">
-
-            <select class="select2" onchange="generatePdf()" id="horaire_matin_debut">
-                @foreach($horaires as $horaire)
-                    <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
-                @endforeach
-            </select>
-
-            <select class="select2" onchange="generatePdf()" id="horaire_matin_fin">
-                @foreach($horaires as $horaire)
-                    <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
-                @endforeach
-            </select>
-
-            <select class="select2" onchange="generatePdf()" id="horaire_soir_debut">
-                @foreach($horaires as $horaire)
-                    <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
-                @endforeach
-            </select>
-
-            <select class="select2" onchange="generatePdf()" id="horaire_soir_fin">
-                @foreach($horaires as $horaire)
-                    <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
-                @endforeach
-            </select>
+        <div class="groupForm noflex">
+            <div class="formFlexSelectHoraire">
+                <div>L</div>
+                <select class="select2" onchange="updateOtherDate(this)" id="lundi_horaire_matin_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="updateOtherDate(this)" id="lundi_horaire_matin_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="updateOtherDate(this)" id="lundi_horaire_soir_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="updateOtherDate(this)" id="lundi_horaire_soir_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="formFlexSelectHoraire">
+                <div>M</div>
+                <select class="select2" onchange="generatePdf()" id="mardi_horaire_matin_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mardi_horaire_matin_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mardi_horaire_soir_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mardi_horaire_soir_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="formFlexSelectHoraire">
+                <div>M</div>
+                <select class="select2" onchange="generatePdf()" id="mercredi_horaire_matin_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mercredi_horaire_matin_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mercredi_horaire_soir_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="mercredi_horaire_soir_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="formFlexSelectHoraire">
+                <div>J</div>
+                <select class="select2" onchange="generatePdf()" id="jeudi_horaire_matin_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="jeudi_horaire_matin_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="jeudi_horaire_soir_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="jeudi_horaire_soir_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="formFlexSelectHoraire">
+                <div>V</div>
+                <select class="select2" onchange="generatePdf()" id="vendredi_horaire_matin_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "09:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="vendredi_horaire_matin_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "12:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="vendredi_horaire_soir_debut">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "13:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+                <select class="select2" onchange="generatePdf()" id="vendredi_horaire_soir_fin">
+                    @foreach($horaires as $horaire)
+                        <option @if($horaire == "17:00") selected @endif value="{{ $horaire }}">{{ $horaire }}</option>
+                    @endforeach
+                </select>
+            </div>
 
         </div>
 

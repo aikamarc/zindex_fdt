@@ -92,6 +92,32 @@ body
     border-radius: 5px;
 }
 
+.formFlexSelectHoraire
+{
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: white;
+}
+
+.formFlexSelectHoraire div
+{
+    color: white;
+    font-weight: bold;
+    margin-top: 3px;
+    margin-left: 3px;
+    position: relative;
+    height: 15px;
+    aspect-ratio: 1;
+    text-align: center;
+}
+
+.noflex
+{
+    flex-direction: column;
+}
+
 .inputForm
 {
     border-radius: 3px;
