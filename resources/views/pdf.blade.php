@@ -350,8 +350,8 @@
         .signatureManu
         {
             position: absolute;
-            bottom: 15px;
-            left: 2px;
+            bottom: 25px;
+            left: 4px;
             width: 16%;
             height: 5%;
         }
